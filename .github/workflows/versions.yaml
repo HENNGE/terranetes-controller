@@ -1,66 +1,66 @@
----
-name: Image Versions
-permissions:
-  contents: read
-  pull-requests: write
+# ---
+# name: Image Versions
+# permissions:
+#   contents: read
+#   pull-requests: write
 
-on:
-  schedule:
-    - cron: "37 9 * * 2"
-  workflow_dispatch:
+# on:
+#   schedule:
+#     - cron: "37 9 * * 2"
+#   workflow_dispatch:
 
-jobs:
-  versions:
-    strategy:
-      matrix:
-        include:
-          - name: Checkov
-            repository: bridgecrewio/checkov
-            image: bridgecrew/checkov
-            value: controller.images.policy
-          - name: Infracost
-            repository: infracost/infracost
-            image: infracost/infracost
-            value: controller.images.infracost
-          - name: Terraform
-            repository: hashicorp/terraform
-            image: hashicorp/terraform
-            value: controller.images.terraform
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          ref: develop
-      - name: Retrieving ${{ matrix.name }} Latest Version
-        run: |
-          curl -s https://api.github.com/repos/${{ matrix.repository }}/releases/latest | jq -r '.name' > /tmp/release.latest
-      - name: Install YQ
-        env:
-          BINARY: yq_linux_amd64
-          VERSION: v4.27.2
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-      - name: Patch Helm Chart
-        run: |
-          export VERSION=$(cat /tmp/release.latest)
-          export IMAGE="${{ matrix.image }}:${VERSION##v}"
+# jobs:
+#   versions:
+#     strategy:
+#       matrix:
+#         include:
+#           - name: Checkov
+#             repository: bridgecrewio/checkov
+#             image: bridgecrew/checkov
+#             value: controller.images.policy
+#           - name: Infracost
+#             repository: infracost/infracost
+#             image: infracost/infracost
+#             value: controller.images.infracost
+#           - name: Terraform
+#             repository: hashicorp/terraform
+#             image: hashicorp/terraform
+#             value: controller.images.terraform
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v6
+#         with:
+#           ref: develop
+#       - name: Retrieving ${{ matrix.name }} Latest Version
+#         run: |
+#           curl -s https://api.github.com/repos/${{ matrix.repository }}/releases/latest | jq -r '.name' > /tmp/release.latest
+#       - name: Install YQ
+#         env:
+#           BINARY: yq_linux_amd64
+#           VERSION: v4.27.2
+#         run: |
+#           sudo wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq
+#           sudo chmod +x /usr/bin/yq
+#       - name: Patch Helm Chart
+#         run: |
+#           export VERSION=$(cat /tmp/release.latest)
+#           export IMAGE="${{ matrix.image }}:${VERSION##v}"
 
-          # We should use the CI image for infracost
-          if [[ "${{ matrix.image }}" == "infracost/infracost" ]]; then
-            export IMAGE="${{ matrix.image }}:ci-${VERSION##v}"
-          fi
-          if [[ "${{ matrix.image }}" == "bridgecrew/checkov" ]]; then
-            export IMAGE="${{ matrix.image }}:${VERSION}"
-          fi
+#           # We should use the CI image for infracost
+#           if [[ "${{ matrix.image }}" == "infracost/infracost" ]]; then
+#             export IMAGE="${{ matrix.image }}:ci-${VERSION##v}"
+#           fi
+#           if [[ "${{ matrix.image }}" == "bridgecrew/checkov" ]]; then
+#             export IMAGE="${{ matrix.image }}:${VERSION}"
+#           fi
 
-          yq e '.${{ matrix.value }} = strenv(IMAGE)' -i charts/terranetes-controller/values.yaml
-      - name: Raise Pull Request
-        uses: peter-evans/create-pull-request@v8
-        with:
-          branch-suffix: timestamp
-          delete-branch: true
-          title: "[IMAGES] - ${{ matrix.name }} Image Update"
-          body: |
-            Updating the ${{ matrix.name }} image in the helm values to the latest
+#           yq e '.${{ matrix.value }} = strenv(IMAGE)' -i charts/terranetes-controller/values.yaml
+#       - name: Raise Pull Request
+#         uses: peter-evans/create-pull-request@v8
+#         with:
+#           branch-suffix: timestamp
+#           delete-branch: true
+#           title: "[IMAGES] - ${{ matrix.name }} Image Update"
+#           body: |
+#             Updating the ${{ matrix.name }} image in the helm values to the latest
