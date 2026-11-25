@@ -1,37 +1,37 @@
----
-name: Publish Latest Assets
+# ---
+# name: Publish Latest Assets
 
-on:
-  push:
-    branches: [master]
+# on:
+#   push:
+#     branches: [master]
 
-permissions:
-  contents: write
-  id-token: write
-  packages: write
+# permissions:
+#   contents: write
+#   id-token: write
+#   packages: write
 
-jobs:
-  latest-images:
-    uses: ./.github/workflows/images.yaml
-    secrets: inherit
+# jobs:
+#   latest-images:
+#     uses: ./.github/workflows/images.yaml
+#     secrets: inherit
 
-  release-helm-chart:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.8.1
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
-        env:
-          CR_SKIP_EXISTING: true
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+#   release-helm-chart:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Clone repo
+#         uses: actions/checkout@v6
+#         with:
+#           fetch-depth: 0
+#       - name: Configure Git
+#         run: |
+#           git config user.name "$GITHUB_ACTOR"
+#           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+#       - name: Install Helm
+#         uses: azure/setup-helm@v4
+#         with:
+#           version: v3.8.1
+#       - name: Run chart-releaser
+#         uses: helm/chart-releaser-action@v1.7.0
+#         env:
+#           CR_SKIP_EXISTING: true
+#           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

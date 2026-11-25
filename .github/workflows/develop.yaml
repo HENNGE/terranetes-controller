@@ -1,16 +1,16 @@
----
-name: Develop
+# ---
+# name: Develop
 
-on:
-  push:
-    branches: [develop]
+# on:
+#   push:
+#     branches: [develop]
 
-permissions:
-  contents: read
-  id-token: write
-  packages: write
+# permissions:
+#   contents: read
+#   id-token: write
+#   packages: write
 
-jobs:
-  develop-images:
-    uses: ./.github/workflows/images.yaml
-    secrets: inherit
+# jobs:
+#   develop-images:
+#     uses: ./.github/workflows/images.yaml
+#     secrets: inherit

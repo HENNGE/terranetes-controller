@@ -12,11 +12,11 @@ permissions:
   packages: write
 
 jobs:
-  e2e-aws:
-    uses: ./.github/workflows/e2e.yaml
-    secrets: inherit
-    with:
-      cloud: aws
+  # e2e-aws:
+  #   uses: ./.github/workflows/e2e.yaml
+  #   secrets: inherit
+  #   with:
+  #     cloud: aws
 
   #  e2e-azure:
   #    uses: ./.github/workflows/e2e.yaml
@@ -31,40 +31,40 @@ jobs:
   #      cloud: google
 
   release-tagged-images:
-    needs:
-      - e2e-aws
-      # - e2e-google
-    #      - e2e-azure
+    # needs:
+    #   - e2e-aws
+    #   - e2e-google
+    #   - e2e-azure
     uses: ./.github/workflows/images.yaml
     secrets: inherit
 
-  release:
-    needs:
-      - e2e-aws
-      # - e2e-azure
-      # - e2e-google
-    name: Github Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v6
-      - name: Setup Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: "1.25"
-      - name: Build CLI
-        run: |
-          export VERSION=${GITHUB_REF##*/}
-          make release-cli
-      - name: Github Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          prerelease: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            release/tnctl-darwin-amd64
-            release/tnctl-darwin-arm64
-            release/tnctl-linux-amd64
-            release/tnctl-linux-arm64
-            release/tnctl-windows-amd64.exe
+  # release:
+  #   needs:
+  #     - e2e-aws
+  #     # - e2e-azure
+  #     # - e2e-google
+  #   name: Github Release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone repo
+  #       uses: actions/checkout@v6
+  #     - name: Setup Go
+  #       uses: actions/setup-go@v6
+  #       with:
+  #         go-version: "1.25"
+  #     - name: Build CLI
+  #       run: |
+  #         export VERSION=${GITHUB_REF##*/}
+  #         make release-cli
+  #     - name: Github Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         generate_release_notes: true
+  #         prerelease: true
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         files: |
+  #           release/tnctl-darwin-amd64
+  #           release/tnctl-darwin-arm64
+  #           release/tnctl-linux-amd64
+  #           release/tnctl-linux-arm64
+  #           release/tnctl-windows-amd64.exe
